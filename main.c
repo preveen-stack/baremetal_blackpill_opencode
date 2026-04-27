@@ -1,36 +1,25 @@
 #include <stdint.h>
 
-#define RCC_BASE       0x40021000
-#define RCC_APB2ENR    (*(volatile uint32_t *)(RCC_BASE + 0x18))
+#define RCC_AHB1ENR (*(volatile uint32_t *)0x40021030)
+#define GPIOC_MODER (*(volatile uint32_t *)0x40011000)
+#define GPIOC_ODR   (*(volatile uint32_t *)0x4001100C)
 
-#define GPIOC_BASE    0x40011000
-#define GPIOC_CRH     (*(volatile uint32_t *)(GPIOC_BASE + 0x04))
-#define GPIOC_BSRR    (*(volatile uint32_t *)(GPIOC_BASE + 0x10))
-
-#define LED_PIN        13
-#define LED_ON         (1 << LED_PIN)
-#define LED_OFF        (1 << (LED_PIN + 16))
-
-void delay(volatile uint32_t count)
+void delay(void)
 {
-    while (count--) {
-        __asm__("nop");
-    }
+    volatile uint32_t i;
+    for (i = 0; i < 500000; i++);
 }
 
 int main(void)
 {
-    RCC_APB2ENR |= (1 << 4);
+    RCC_AHB1ENR = 0x00000004;
+    GPIOC_MODER = 0xA8000000;
+    GPIOC_ODR = 0x00002000;
 
-    GPIOC_CRH &= ~(0xF << ((LED_PIN - 8) * 4));
-    GPIOC_CRH |=  (0x2 << ((LED_PIN - 8) * 4));
-
-    for (;;) {
-        GPIOC_BSRR = LED_ON;
-        delay(500000);
-        GPIOC_BSRR = LED_OFF;
-        delay(500000);
+    while (1) {
+        GPIOC_ODR = 0xFFFFDFFF;
+        delay();
+        GPIOC_ODR = 0x00002000;
+        delay();
     }
-
-    return 0;
 }
