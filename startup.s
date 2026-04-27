@@ -9,9 +9,14 @@
 
 .set STACK_TOP, 0x20020000
 
+.text
+.word STACK_TOP
+.word _start
+
+.global _start
 _start:
+    movs r0, #0
     ldr sp, =STACK_TOP
-    mov r0, #0
     bl copy_data
     bl zero_bss
     bl main
@@ -39,7 +44,7 @@ zero_bss:
     ldr r2, =_ebss
     cmp r1, r2
     beq zero_done
-    mov r0, #0
+    movs r0, #0
 zero_loop:
     str r0, [r1]
     add r1, r1, #4
@@ -47,5 +52,3 @@ zero_loop:
     bne zero_loop
 zero_done:
     bx lr
-
-.size _start, .-_start
