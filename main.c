@@ -25,9 +25,9 @@ int main(void)
     GPIOC_CRH |=  (0x3 << ((LED_PIN - 8) * 4));
 
     for (;;) {
-        GPIOC_ODR |= LED_MASK;
-        delay(500000);
         GPIOC_ODR &= ~LED_MASK;
+        delay(500000);
+        GPIOC_ODR |= LED_MASK;
         delay(500000);
     }
 
